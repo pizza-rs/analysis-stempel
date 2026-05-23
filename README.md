@@ -1,79 +1,72 @@
-# pizza-analysis-stempel
+<div align="center">
 
-Polish stemming for the [Pizza](https://pizza.rs) search engine. Implements the Stempel algorithm using the Egothor trie structure, equivalent to Apache Lucene's `StempelStemmer`.
+# 🇵🇱 pizza-analysis-stempel
+
+**Polish algorithmic stemming (Stempel) for [INFINI Pizza](https://pizza.rs)**
+
+[![Crate](https://img.shields.io/badge/crate-pizza--analysis--stempel-blue)](https://github.com/pizza-rs/analysis-stempel)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+</div>
+
+---
+
+## Overview
+
+Algorithmic stemmer for Polish using the Stempel algorithm — a table-driven
+stemmer that applies learned suffix-removal patterns from a compiled automaton.
+Compared to Morfologik's dictionary lookup, Stempel is lighter weight and can
+handle out-of-vocabulary words, but may produce non-dictionary stems.
 
 ## Components
 
-| Name | Type | Description |
-|------|------|-------------|
-| `stempel_stem` | Token Filter | Polish stemming via Stempel/Egothor trie algorithm |
-| `polish_stop` | Token Filter | Polish stop words removal (186 words) |
+| Type | Name | Description |
+|:-----|:-----|:------------|
+| TokenFilter | `stempel_stem` | Polish Stempel algorithmic stemmer |
+| TokenFilter | `polish_stop` | Polish stop words |
 
-## Usage
+### Stempel vs Morfologik
 
-### Stempel Stemmer
+| Feature | Stempel | Morfologik |
+|:--------|:--------|:-----------|
+| Approach | Algorithmic (learned rules) | Dictionary (FSA lookup) |
+| OOV handling | Applies rules to unknown words | Falls through unchanged |
+| Output | Stems (may not be real words) | Lemmas (dictionary forms) |
+| Size | Smaller model | Larger dictionary |
 
-```json
-{
-  "analyzer": {
-    "type": "custom",
-    "tokenizer": "standard",
-    "filter": ["lowercase", "polish_stop", "stempel_stem"]
-  }
-}
+Choose Stempel when you need broader coverage; choose Morfologik when accuracy matters more.
+
+## Example
+
+```rust
+use pizza_engine::analysis::AnalysisFactory;
+
+let mut factory = AnalysisFactory::new();
+pizza_analysis_stempel::register_all(&mut factory);
+
+let stem = factory.get_token_filter("stempel_stem").unwrap();
 ```
 
-### Examples
+## Installation
 
-| Input | Stemmed |
-|-------|---------|
-| `komputerów` | `komputer` |
-| `programowania` | `programować` |
-| `polskich` | `polski` |
-| `książkami` | `książka` |
+```toml
+[dependencies]
+pizza-analysis-stempel = "0.1"
+```
 
-## Algorithm
+Or via `pizza-analysis-all`:
 
-The Stempel stemmer uses an Egothor MultiTrie2 structure:
-
-1. **Trie lookup** — The input word is reversed and traversed through multiple sub-tries (backward/suffix-based matching)
-2. **Patch command retrieval** — Each sub-trie returns a "patch command" string
-3. **Diff application** — The patch commands are applied to the original word using operations:
-   - `-` (seek forward in word)
-   - `R` (replace character)
-   - `D` (delete character)
-   - `I` (insert character)
-4. **Multi-trie combination** — Results from 8 sub-tries are combined, with each subsequent trie refining the result
-
-This approach captures morphological transformations more accurately than simple suffix stripping, handling phenomena like vowel alternation (ó→o) and consonant mutation.
-
-## Data Sources
-
-- **Stemmer table**: `stemmer_20000.tbl` — Pre-compiled Egothor MultiTrie2 binary table from Apache Lucene (trained on 20,000 word forms)
-- **Stop words**: 186 Polish stop words from Apache Lucene's `PolishAnalyzer`
-- **License**: Apache 2.0 (from Apache Lucene)
-
-## Technical Details
-
-- Binary trie data is embedded via `include_bytes!` (~2.2MB)
-- Trie deserialization uses Java `DataInputStream`-compatible reading (big-endian)
-- The MultiTrie2 contains 8 sub-tries with 6,815 total rows and 664 commands
-- Operates on `no_std` with alloc — suitable for embedded/WASM targets
-
-## Features
-
-- `embed-table` (default) — Embeds the stemmer table at compile time
-
-## Comparison with Snowball Polish Stemmer
-
-| Feature | Stempel | Snowball Polish |
-|---------|---------|-----------------|
-| Approach | Trained trie (data-driven) | Hand-written rules |
-| Accuracy | Higher (trained on 20K forms) | Lower (simplified rules) |
-| Binary size | ~2.2MB (trie table) | ~5KB (algorithm code) |
-| Speed | Fast (trie lookup) | Faster (direct code) |
-| Handles irregulars | Yes (learned) | Limited |
+```toml
+[dependencies]
+pizza-analysis-all = { version = "0.1", features = ["stempel"] }
+```
 
 ## License
 
-Apache-2.0
+MIT
+
+---
+
+<div align="center">
+<sub>Part of the <a href="https://pizza.rs">INFINI Pizza</a> ecosystem</sub>
+</div>
