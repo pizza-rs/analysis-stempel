@@ -1,0 +1,23 @@
+[package]
+name = "pizza-analysis-stempel"
+version = "0.1.0"
+authors = ["INFINI Labs <hello@infini.ltd>"]
+edition = "2021"
+license = "MIT"
+description = "Polish Stempel stemmer for INFINI Pizza"
+repository = "https://pizza.rs"
+keywords = ["pizza", "polish", "stemmer", "stempel", "nlp"]
+build = "build.rs"
+
+
+[features]
+default = ["embed-table"]
+embed-table = []
+std = ["pizza-engine/std"]
+
+[dependencies]
+pizza-engine = { path = "../../lib/engine", default-features = false }
+hashbrown = { version = "0.14", default-features = false }
+once_cell = { version = "1", default-features = false, features = ["alloc"] }
+
+[dev-dependencies]
