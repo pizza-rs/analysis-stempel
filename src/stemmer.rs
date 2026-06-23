@@ -312,8 +312,21 @@ impl Default for StempelStemFilter {
 }
 
 impl StempelStemFilter {
-    /// Create a new Stempel stemmer by loading the embedded trie table.
+    /// Create a new Stempel stemmer by loading the trie table.
     pub fn new() -> Self {
+        // External config first (`<config>/analysis/stempel/stemmer_20000.tbl`),
+        // falling back to the table embedded in the binary.
+        #[cfg(feature = "std")]
+        let trie = {
+            let table = pizza_engine::analysis::dict::load_bytes(
+                "stempel",
+                "stemmer_20000.tbl",
+                Some(STEMMER_TABLE),
+            )
+            .expect("stempel stemmer table");
+            MultiTrie::from_bytes(table.as_ref())
+        };
+        #[cfg(not(feature = "std"))]
         let trie = MultiTrie::from_bytes(STEMMER_TABLE);
         Self { trie }
     }
