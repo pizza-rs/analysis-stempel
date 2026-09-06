@@ -1,7 +1,11 @@
 //! Comprehensive tests for pizza-analysis-stempel (Polish stemmer + stop filter).
 
-use pizza_analysis_stempel::{PolishStopFilter, StempelStemFilter, POLISH_STOP_WORDS};
-use pizza_engine::analysis::{AnalysisFactory, Token, TokenFilter};
+use pizza_analysis_stempel::PolishStopFilter;
+use pizza_analysis_stempel::StempelStemFilter;
+use pizza_analysis_stempel::POLISH_STOP_WORDS;
+use pizza_engine::analysis::AnalysisFactory;
+use pizza_engine::analysis::Token;
+use pizza_engine::analysis::TokenFilter;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Helpers
@@ -10,8 +14,6 @@ use pizza_engine::analysis::{AnalysisFactory, Token, TokenFilter};
 fn make_token(term: &str) -> Token<'_> {
     Token::new(term, 0, term.len() as u32, 0)
 }
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // StempelStemFilter — construction

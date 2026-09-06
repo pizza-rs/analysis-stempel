@@ -20,15 +20,16 @@ use alloc::borrow::Cow;
 use alloc::string::String;
 use alloc::vec::Vec;
 
-use pizza_engine::analysis::{Token, TokenFilter};
+use pizza_engine::analysis::Token;
+use pizza_engine::analysis::TokenFilter;
 
 /// A cell in the Egothor trie row.
 #[derive(Clone, Debug)]
 struct Cell {
-    cmd: i32,   // index into commands table (-1 = no command)
-    _cnt: i32,  // usage count (not used at runtime)
-    ref_: i32,  // index of next row (-1 = no transition)
-    skip: i32,  // chars to skip during traversal
+    cmd: i32,  // index into commands table (-1 = no command)
+    _cnt: i32, // usage count (not used at runtime)
+    ref_: i32, // index of next row (-1 = no transition)
+    skip: i32, // chars to skip during traversal
 }
 
 /// A row in the Egothor trie (maps char → Cell).
@@ -57,7 +58,15 @@ impl Row {
             pos += 4;
             let skip = read_i32(data, pos);
             pos += 4;
-            cells.push((ch, Cell { cmd, _cnt, ref_, skip }));
+            cells.push((
+                ch,
+                Cell {
+                    cmd,
+                    _cnt,
+                    ref_,
+                    skip,
+                },
+            ));
         }
 
         (Self { cells }, pos - offset)
@@ -67,7 +76,10 @@ impl Row {
     #[inline]
     fn at(&self, ch: char) -> Option<&Cell> {
         // Linear search is fine for small rows (avg ~4 entries)
-        self.cells.iter().find(|(c, _)| *c == ch).map(|(_, cell)| cell)
+        self.cells
+            .iter()
+            .find(|(c, _)| *c == ch)
+            .map(|(_, cell)| cell)
     }
 
     /// Get the command index for a character.
@@ -121,7 +133,15 @@ impl Trie {
             pos += consumed;
         }
 
-        (Self { forward, root, cmds, rows }, pos - offset)
+        (
+            Self {
+                forward,
+                root,
+                cmds,
+                rows,
+            },
+            pos - offset,
+        )
     }
 
     /// Get the last command on the path matching the key.
@@ -214,15 +234,27 @@ impl MultiTrie {
             if let Some(r) = trie.get_last_on_path(key) {
                 if r.len() == 1 && r.starts_with('*') {
                     // EOM marker - stop concatenating
-                    return if result.is_empty() { None } else { Some(result) };
+                    return if result.is_empty() {
+                        None
+                    } else {
+                        Some(result)
+                    };
                 }
                 result.push_str(r);
             } else {
                 // No match in this sub-trie
-                return if result.is_empty() { None } else { Some(result) };
+                return if result.is_empty() {
+                    None
+                } else {
+                    Some(result)
+                };
             }
         }
-        if result.is_empty() { None } else { Some(result) }
+        if result.is_empty() {
+            None
+        } else {
+            Some(result)
+        }
     }
 }
 
@@ -421,9 +453,8 @@ fn read_utf(data: &[u8], pos: usize) -> (String, usize) {
             if i + 2 < end {
                 let b2 = data[i + 1];
                 let b3 = data[i + 2];
-                let code = ((b1 as u32 & 0x0F) << 12)
-                    | ((b2 as u32 & 0x3F) << 6)
-                    | (b3 as u32 & 0x3F);
+                let code =
+                    ((b1 as u32 & 0x0F) << 12) | ((b2 as u32 & 0x3F) << 6) | (b3 as u32 & 0x3F);
                 chars.push(char::from_u32(code).unwrap_or('\u{FFFD}'));
             }
             i += 3;

@@ -17,6 +17,7 @@ mod stemmer;
 mod stop;
 
 pub use stemmer::StempelStemFilter;
-pub use stop::{PolishStopFilter, POLISH_STOP_WORDS};
+pub use stop::PolishStopFilter;
+pub use stop::POLISH_STOP_WORDS;
 pub mod register;
 pub use register::register_all;

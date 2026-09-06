@@ -4,7 +4,8 @@ use alloc::boxed::Box;
 
 use pizza_engine::analysis::AnalysisFactory;
 
-use crate::{PolishStopFilter, StempelStemFilter};
+use crate::PolishStopFilter;
+use crate::StempelStemFilter;
 
 /// Register Stempel token filters and a Polish analyzer.
 pub fn register_all(factory: &mut AnalysisFactory) {
