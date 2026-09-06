@@ -13,7 +13,7 @@ build = "build.rs"
 [features]
 default = ["embed-table"]
 embed-table = []
-std = ["pizza-engine/std"]
+std = ["pizza-engine/std", "once_cell/std"]
 
 [dependencies]
 pizza-engine = { path = "../../lib/engine", default-features = false }
