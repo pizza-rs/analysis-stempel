@@ -13,6 +13,29 @@
 //! - [`StempelStemFilter`] — Polish stemming token filter
 //! - [`PolishStopFilter`] — Polish stop words filter
 extern crate alloc;
+#[cfg(feature = "std")]
+#[doc(hidden)]
+/// Point the analysis dictionary directory at this crate's `data/` copy so
+/// tests can construct the filter under any feature selection (the external
+/// file must be laid out as `<dict_dir>/stempel/stemmer_20000.tbl`).
+pub fn init_test_dict_dir() {
+    static ONCE: std::sync::Once = std::sync::Once::new();
+    ONCE.call_once(|| {
+        let dir = std::env::temp_dir().join(format!(
+            "pizza-stempel-test-dict-{}",
+            std::process::id()
+        ));
+        let ns = dir.join("stempel");
+        if std::fs::create_dir_all(&ns).is_ok() {
+            let _ = std::fs::copy(
+                concat!(env!("CARGO_MANIFEST_DIR"), "/data/stemmer_20000.tbl"),
+                ns.join("stemmer_20000.tbl"),
+            );
+        }
+        pizza_engine::analysis::dict::set_dict_dir(&dir);
+    });
+}
+
 mod stemmer;
 mod stop;
 

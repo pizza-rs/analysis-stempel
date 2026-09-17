@@ -318,7 +318,23 @@ fn apply_diff(word: &mut Vec<char>, diff: &str) {
 }
 
 /// The Stempel stemmer table, loaded from `stemmer_20000.tbl`.
+///
+/// Compiled in only with the `embed-table` feature (or in no_std builds,
+/// where there is no filesystem to read an external copy from). The default
+/// pizza build leaves it out and reads `<dict_dir>/stempel/stemmer_20000.tbl`
+/// at runtime instead.
+#[cfg(any(not(feature = "std"), feature = "embed-table"))]
 static STEMMER_TABLE: &[u8] = include_bytes!("../data/stemmer_20000.tbl");
+
+#[cfg(all(feature = "std", feature = "embed-table"))]
+fn embedded_table() -> Option<&'static [u8]> {
+    Some(STEMMER_TABLE)
+}
+
+#[cfg(all(feature = "std", not(feature = "embed-table")))]
+fn embedded_table() -> Option<&'static [u8]> {
+    None
+}
 
 /// Polish stemming filter using the Stempel algorithm with the real Egothor trie.
 ///
@@ -347,13 +363,13 @@ impl StempelStemFilter {
     /// Create a new Stempel stemmer by loading the trie table.
     pub fn new() -> Self {
         // External config first (`<config>/analysis/stempel/stemmer_20000.tbl`),
-        // falling back to the table embedded in the binary.
+        // falling back to the table embedded in the binary (embed-table).
         #[cfg(feature = "std")]
         let trie = {
             let table = pizza_engine::analysis::dict::load_bytes(
                 "stempel",
                 "stemmer_20000.tbl",
-                Some(STEMMER_TABLE),
+                embedded_table(),
             )
             .expect("stempel stemmer table");
             MultiTrie::from_bytes(table.as_ref())

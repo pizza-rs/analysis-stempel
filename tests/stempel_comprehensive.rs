@@ -21,22 +21,26 @@ fn make_token(term: &str) -> Token<'_> {
 
 #[test]
 fn stemmer_construction() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let _filter = StempelStemFilter::new();
 }
 
 #[test]
 fn stemmer_default_trait() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let _filter = StempelStemFilter::default();
 }
 
 #[test]
 fn stemmer_clone() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f1 = StempelStemFilter::new();
     let _f2 = f1.clone();
 }
 
 #[test]
 fn stemmer_debug() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     let dbg = format!("{:?}", f);
     assert!(dbg.contains("StempelStemFilter"));
@@ -48,6 +52,7 @@ fn stemmer_debug() {
 
 #[test]
 fn stem_polish_noun_plural() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     // "domy" (houses) should reduce towards "dom"
     if let Some(stemmed) = f.stem("domy") {
@@ -58,6 +63,7 @@ fn stem_polish_noun_plural() {
 
 #[test]
 fn stem_polish_verb_conjugation() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     // "pisałem" (I was writing) should stem
     if let Some(stemmed) = f.stem("pisałem") {
@@ -67,6 +73,7 @@ fn stem_polish_verb_conjugation() {
 
 #[test]
 fn stem_short_word_returns_none() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     // Words shorter than 3 chars should return None
     assert!(f.stem("do").is_none());
@@ -75,12 +82,14 @@ fn stem_short_word_returns_none() {
 
 #[test]
 fn stem_empty_string() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     assert!(f.stem("").is_none());
 }
 
 #[test]
 fn stem_already_base_form() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     // Some base forms may return None (no transformation)
     let result = f.stem("dom");
@@ -92,6 +101,7 @@ fn stem_already_base_form() {
 
 #[test]
 fn stem_adjective_forms() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     // "pięknego" (beautiful, genitive) should stem
     if let Some(stemmed) = f.stem("pięknego") {
@@ -101,6 +111,7 @@ fn stem_adjective_forms() {
 
 #[test]
 fn stem_non_polish_text() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     // English word — may or may not stem, but should not panic
     let _result = f.stem("running");
@@ -112,6 +123,7 @@ fn stem_non_polish_text() {
 
 #[test]
 fn filter_stems_polish_word() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     let mut token = make_token("komputerów");
     let (deleted, _extra) = f.filter(&mut token);
@@ -121,6 +133,7 @@ fn filter_stems_polish_word() {
 
 #[test]
 fn filter_preserves_offsets() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     let mut token = Token::new("domy", 5, 9, 2);
     let _ = f.filter(&mut token);
@@ -131,6 +144,7 @@ fn filter_preserves_offsets() {
 
 #[test]
 fn filter_empty_token() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     let mut token = make_token("");
     let (deleted, _extra) = f.filter(&mut token);
@@ -139,6 +153,7 @@ fn filter_empty_token() {
 
 #[test]
 fn filter_single_char() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     let mut token = make_token("a");
     let (deleted, _extra) = f.filter(&mut token);
@@ -151,16 +166,19 @@ fn filter_single_char() {
 
 #[test]
 fn stop_filter_construction() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let _f = PolishStopFilter::new();
 }
 
 #[test]
 fn stop_filter_default() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let _f = PolishStopFilter::default();
 }
 
 #[test]
 fn stop_filter_custom_words() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let words = vec!["foo".to_string(), "bar".to_string()];
     let _f = PolishStopFilter::with_words(words);
 }
@@ -171,6 +189,7 @@ fn stop_filter_custom_words() {
 
 #[test]
 fn stop_filter_removes_polish_stop_words() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = PolishStopFilter::new();
     for &word in &["i", "nie", "się", "na", "że", "to", "do"] {
         let mut token = make_token(word);
@@ -181,6 +200,7 @@ fn stop_filter_removes_polish_stop_words() {
 
 #[test]
 fn stop_filter_keeps_content_words() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = PolishStopFilter::new();
     for &word in &["komputer", "programowanie", "dom", "szkoła"] {
         let mut token = make_token(word);
@@ -191,6 +211,7 @@ fn stop_filter_keeps_content_words() {
 
 #[test]
 fn stop_filter_empty_token() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = PolishStopFilter::new();
     let mut token = make_token("");
     let (deleted, _) = f.filter(&mut token);
@@ -199,6 +220,7 @@ fn stop_filter_empty_token() {
 
 #[test]
 fn stop_filter_custom_words_work() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let words = vec!["custom".to_string(), "stop".to_string()];
     let f = PolishStopFilter::with_words(words);
     let mut token = make_token("custom");
@@ -216,12 +238,14 @@ fn stop_filter_custom_words_work() {
 
 #[test]
 fn stop_words_list_not_empty() {
+    pizza_analysis_stempel::init_test_dict_dir();
     assert!(!POLISH_STOP_WORDS.is_empty());
     assert!(POLISH_STOP_WORDS.len() > 50);
 }
 
 #[test]
 fn stop_words_contain_common_words() {
+    pizza_analysis_stempel::init_test_dict_dir();
     assert!(POLISH_STOP_WORDS.contains(&"i"));
     assert!(POLISH_STOP_WORDS.contains(&"nie"));
     assert!(POLISH_STOP_WORDS.contains(&"się"));
@@ -233,6 +257,7 @@ fn stop_words_contain_common_words() {
 
 #[test]
 fn register_all_does_not_panic() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let mut factory = AnalysisFactory::new();
     pizza_analysis_stempel::register_all(&mut factory);
 }
@@ -243,6 +268,7 @@ fn register_all_does_not_panic() {
 
 #[test]
 fn pipeline_stop_then_stem() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let stop = PolishStopFilter::new();
     let stem = StempelStemFilter::new();
 
@@ -268,6 +294,7 @@ fn pipeline_stop_then_stem() {
 
 #[test]
 fn stem_unicode_polish_chars() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = StempelStemFilter::new();
     // Polish-specific characters: ą ć ę ł ń ó ś ź ż
     let _result = f.stem("źródło");
@@ -276,6 +303,7 @@ fn stem_unicode_polish_chars() {
 
 #[test]
 fn stop_filter_unicode_stop_words() {
+    pizza_analysis_stempel::init_test_dict_dir();
     let f = PolishStopFilter::new();
     let mut token = make_token("będzie");
     let (deleted, _) = f.filter(&mut token);

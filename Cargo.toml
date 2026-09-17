@@ -12,6 +12,9 @@ build = "build.rs"
 
 [features]
 default = ["embed-table"]
+# Embed `stemmer_20000.tbl` as a runtime fallback. The default pizza build
+# leaves this off (binary size) and loads the table from the external
+# `<dict_dir>/stempel/stemmer_20000.tbl` instead.
 embed-table = []
 std = ["pizza-engine/std", "once_cell/std"]
 
