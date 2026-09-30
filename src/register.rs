@@ -13,8 +13,6 @@ pub fn register_all(factory: &mut AnalysisFactory) {
     // default no-embed build a missing external dictionary must fail only
     // the requests that actually use this filter — an eager registration
     // would take the whole factory (every analyzer) down with it.
-    factory.register_token_filter_with("stempel_stem", || {
-        Box::new(StempelStemFilter::new())
-    });
+    factory.register_token_filter_with("stempel_stem", || Box::new(StempelStemFilter::new()));
     factory.register_token_filter("polish_stop", Box::new(PolishStopFilter::new()));
 }

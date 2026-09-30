@@ -21,10 +21,8 @@ extern crate alloc;
 pub fn init_test_dict_dir() {
     static ONCE: std::sync::Once = std::sync::Once::new();
     ONCE.call_once(|| {
-        let dir = std::env::temp_dir().join(format!(
-            "pizza-stempel-test-dict-{}",
-            std::process::id()
-        ));
+        let dir =
+            std::env::temp_dir().join(format!("pizza-stempel-test-dict-{}", std::process::id()));
         let ns = dir.join("stempel");
         if std::fs::create_dir_all(&ns).is_ok() {
             let _ = std::fs::copy(
